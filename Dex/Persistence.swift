@@ -25,8 +25,8 @@ struct PersistenceController {
         newPokemon.specialAttack = 65
         newPokemon.specialDefense = 65
         newPokemon.speed = 45
-        newPokemon.sprite = URL(string: "http://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png")
-        newPokemon.shiny = URL(string: "http://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1.png")
+        newPokemon.sprite = URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/2.png")
+        newPokemon.shiny = URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/2.png")
         
         do {
             try viewContext.save()
@@ -44,7 +44,9 @@ struct PersistenceController {
             container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
         }
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-            print(error ?? "Some error...")
+            if let error = error as NSError? {
+                print(error)
+            }
         })
         
         container.viewContext.mergePolicy = NSMergePolicy.mergeByPropertyStoreTrump
