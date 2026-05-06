@@ -56,7 +56,8 @@ struct ContentView: View {
                     Section {
                         ForEach(pokedex) { pokemon in
                             NavigationLink {
-                                Text(pokemon.name?.capitalized ?? "??")
+                                PokemonDetailView()
+                                    .environmentObject(pokemon)
                             } label: {
                                 AsyncImage(url: pokemon.sprite) { image in
                                     image

@@ -9,8 +9,20 @@ import CoreData
 
 struct PersistenceController {
     static let shared = PersistenceController()
+    
+    static var previewPokemon: Pokemon {
+        let context = PersistenceController.preview.container.viewContext
+        
+        let request: NSFetchRequest<Pokemon> = Pokemon.fetchRequest()
+        request.fetchLimit = 1
+        
+        guard let pokemon = try? context.fetch(request).first else {
+            fatalError("Could not fetch Pokemon.")
+        }
+        
+        return pokemon
+    }
 
-    @MainActor
     static let preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
