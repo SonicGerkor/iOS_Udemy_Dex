@@ -19,6 +19,7 @@ struct ContentView: View {
     private var pokedex: FetchedResults<Pokemon>
     
     @State private var searchText = ""
+    @State private var filterByFavorites = false
     
     private let fetcher = FetchService()
     private var dynamicPredicate: NSPredicate {
@@ -26,17 +27,21 @@ struct ContentView: View {
         if !searchText.isEmpty {
             predicates.append(NSPredicate(format: "name CONTAINS[c] %@", searchText))
         }
+        if filterByFavorites {
+            predicates.append(NSPredicate(format: "favorite == %d", filterByFavorites))
+        }
+        
         return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
     }
 
     var body: some View {
         NavigationView {
             List {
-                ForEach(pokedex) { p in
+                ForEach(pokedex) { pokemon in
                     NavigationLink {
-                        Text(p.name?.capitalized ?? "??")
+                        Text(pokemon.name?.capitalized ?? "??")
                     } label: {
-                        AsyncImage(url: p.sprite) { image in
+                        AsyncImage(url: pokemon.sprite) { image in
                             image
                                 .resizable()
                                 .scaledToFit()
@@ -47,11 +52,17 @@ struct ContentView: View {
                         
                         
                         VStack(alignment: .leading) {
-                            Text(p.name!.capitalized)
-                                .fontWeight(.bold)
-                            
                             HStack {
-                                ForEach(p.types!, id: \.self) { type in
+                                Text(pokemon.name!.capitalized)
+                                    .fontWeight(.bold)
+                                
+                                if pokemon.favorite {
+                                    Image(systemName: "star.fill")
+                                        .foregroundStyle(.yellow)
+                                }
+                            }
+                            HStack {
+                                ForEach(pokemon.types!, id: \.self) { type in
                                     Text(type.capitalized)
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
@@ -72,9 +83,17 @@ struct ContentView: View {
             .onChange(of: searchText) {
                 pokedex.nsPredicate = dynamicPredicate
             }
+            .onChange(of: filterByFavorites) {
+                pokedex.nsPredicate = dynamicPredicate
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+                    Button {
+                        filterByFavorites.toggle()
+                    } label: {
+                        Label("Filter By Favorites", systemImage: filterByFavorites ? "star.fill" : "star")
+                    }
+                    .tint(.yellow)
                 }
                 ToolbarItem {
                     Button("Add Item", systemImage: "plus") {
